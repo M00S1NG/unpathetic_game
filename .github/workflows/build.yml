@@ -25,12 +25,11 @@ jobs:
 
     - name: Build with PyInstaller
       run: |
-        # Для Windows используем ; для Linux :
-        if [ "${{ matrix.os }}" = "windows-latest" ]; then
-          pyinstaller --onefile --noconsole --name "Unpathetic-Hell" --add-data "images;images" main.py
-        else
-          pyinstaller --onefile --name "unpathetic-hell" --add-data "images:images" main.py
-        fi
+            if [ "${{ matrix.os }}" = "windows-latest" ]; then
+              pyinstaller --onefile --noconsole --name "Unpathetic-Hell" --collect-all pgzero --add-data "images;images" main.py
+            else
+              pyinstaller --onefile --name "unpathetic-hell" --collect-all pgzero --add-data "images:images" main.py
+            fi
       shell: bash
 
     - name: Upload Artifact
