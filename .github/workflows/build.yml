@@ -23,7 +23,7 @@ jobs:
     - name: Build with PyInstaller
       # Собираем только для Windows
       run: |
-        pyinstaller --onefile --noconsole --name "Unpathetic-Hell" --add-data "images;images" --add-data "sounds;sounds" main.py
+        pyinstaller --onefile --noconsole --name "Unpathetic-Hell" --add-data "images;images" main.py
 
     - name: Upload Artifact
       uses: actions/upload-artifact@v4
