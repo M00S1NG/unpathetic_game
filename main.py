@@ -3,10 +3,22 @@ from pgzhelper import *
 import random
 import os
 import math
+import sys
 
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from pgzero.builtins import Actor, keyboard, screen, clock, keys, mouse, Rect, animate
+
+
+# --- Блок для работы в скомпилированном виде (EXE / AppImage) ---
+def resource_path(relative_path):
+    if hasattr(sys, '_MEIPASS'):
+        return os.path.join(sys._MEIPASS, relative_path)
+    return os.path.join(os.path.abspath("."), relative_path)
+
+# Переключаем рабочую директорию на временную папку ресурсов, если игра запущена из EXE/AppImage
+if getattr(sys, 'frozen', False):
+    os.chdir(sys._MEIPASS)
 
 # --- Настройки окна ---
 os.environ['SDL_VIDEO_CENTERED'] = '1' 
