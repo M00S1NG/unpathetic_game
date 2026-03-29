@@ -1,24 +1,12 @@
-name: Build Unpathetic Hell
+name: Build Unpathetic Hell (Windows Only)
 on:
   push:
     branches: [ "main", "master" ]
-  workflow_dispatch: # Позволяет запускать сборку вручную
+  workflow_dispatch:
 
 jobs:
-  build:
-    name: Build for ${{ matrix.os }}
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        include:
-          - os: windows-latest
-            artifact_name: Unpathetic-Hell-Windows
-            executable_extension: .exe
-            sep: ";"
-          - os: ubuntu-latest
-            artifact_name: Unpathetic-Hell-Linux
-            executable_extension: ""
-            sep: ":"
+  build-windows:
+    runs-on: windows-latest
 
     steps:
     - uses: actions/checkout@v4
@@ -30,22 +18,15 @@ jobs:
 
     - name: Install dependencies
       run: |
-        python -m pip install --upgrade pip
         pip install pgzero pgzhelper pyinstaller
 
     - name: Build with PyInstaller
-      # Мы добавляем pgzhelper.py как скрытый импорт и копируем папки ресурсов
-      # Важно: если у тебя есть папки images, sounds, fonts - они попадут в билд
+      # Собираем только для Windows
       run: |
-        pyinstaller --onefile --noconsole \
-        --name "Unpathetic-Hell${{ matrix.executable_extension }}" \
-        --add-data "images${{ matrix.sep }}images" \
-        --add-data "sounds${{ matrix.sep }}sounds" \
-        --collect-all pgzero \
-        main.py
+        pyinstaller --onefile --noconsole --name "Unpathetic-Hell" --add-data "images;images" --add-data "sounds;sounds" main.py
 
     - name: Upload Artifact
       uses: actions/upload-artifact@v4
       with:
-        name: ${{ matrix.artifact_name }}
-        path: dist/Unpathetic-Hell${{ matrix.executable_extension }}
+        name: Unpathetic-Hell-Windows
+        path: dist/Unpathetic-Hell.exe
