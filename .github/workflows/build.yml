@@ -1,4 +1,4 @@
-name: Build AppImage and Windows EXE
+name: Build Game (Windows and Linux)
 on:
   push:
     branches: [ "main", "master" ]
@@ -21,37 +21,22 @@ jobs:
 
     - name: Install dependencies
       run: |
-        python -m pip install --upgrade pip
         pip install pgzero pgzhelper pyinstaller
 
-    - name: Build Windows EXE
-      if: matrix.os == 'windows-latest'
+    - name: Build with PyInstaller
       run: |
-        pyinstaller --onefile --noconsole --name "Unpathetic-Hell" --add-data "images;images" main.py
+        # Для Windows используем ; для Linux :
+        if [ "${{ matrix.os }}" = "windows-latest" ]; then
+          pyinstaller --onefile --noconsole --name "Unpathetic-Hell" --add-data "images;images" main.py
+        else
+          pyinstaller --onefile --name "unpathetic-hell" --add-data "images:images" main.py
+        fi
+      shell: bash
 
-    - name: Build Linux AppImage
-      if: matrix.os == 'ubuntu-latest'
-      run: |
-        # 1. Собираем обычный бинарник через PyInstaller
-        pyinstaller --onefile --name "unpathetic-hell" --add-data "images:images" main.py
-        
-        # 2. Подготовка структуры AppDir
-        mkdir -p AppDir/usr/bin
-        cp dist/unpathetic-hell AppDir/usr/bin/
-        
-        # 3. Создаем необходимые файлы для AppImage (заглушки)
-        echo '[Desktop Entry]\nName=Unpathetic Hell\nExec=unpathetic-hell\nIcon=icon\nType=Application\nCategories=Game;' > AppDir/unpathetic-hell.desktop
-        touch AppDir/icon.png # Можно заменить на реальную иконку позже
-        
-        # 4. Скачиваем и запускаем appimagetool
-        wget https://github.com/AppImage/AppImageKit/releases/download/13/appimagetool-x86_64.AppImage
-        chmod +x appimagetool-x86_64.AppImage
-        ARCH=x86_64 ./appimagetool-x86_64.AppImage AppDir Unpathetic-Hell.AppImage
-
-    - name: Upload Artifacts
+    - name: Upload Artifact
       uses: actions/upload-artifact@v4
       with:
         name: Unpathetic-Hell-${{ matrix.os }}
         path: |
           dist/Unpathetic-Hell.exe
-          Unpathetic-Hell.AppImage
+          dist/unpathetic-hell
